@@ -1,0 +1,232 @@
+-----------------------------------------------------------------------------------
+v0.7	25/12/20
+-----------------------------------------------------------------------------------
+fixed bug where only part of screen shifts when dino collides head on
+	modified function shift scene
+	modified function shift scene row
+
+added function diag
+	used to moniter values of tickCount, rngTick, nextCactus
+-----------------------------------------------------------------------------------
+v0.6	22/12/20
+-----------------------------------------------------------------------------------
+
+added function clrString
+	takes as input parameters: position and length
+	prints 0x0720 starting at that position, length number of times
+
+modified function clrDino
+	function now utilizes clrString function
+
+removed variable string clear
+removed variable string clStart
+
+-----------------------------------------------------------------------------------
+v0.5	13/12/20
+-----------------------------------------------------------------------------------
+
+added more readable comments to asm file
+
+reorganized functions in more logical order and groups
+
+changed cactus height to 2-8 units high
+
+increased frequency of cacti. New cactus spawns every 25-50
+
+added variable string startScreen 'PRESS SPACE TO START'
+added variable string clrStart    '                    '
+
+modified function hookInterrupts
+	function has been split into hookKeyboard and hookTimer
+
+modified start
+	introduced a start screen with start message
+	press space to continue to game
+
+aesthetic changes
+	dino now starts from higher up and falls to ground when game starts
+	score is printed in green on start screen
+
+
+-----------------------------------------------------------------------------------
+v0.4	11/12/20
+-----------------------------------------------------------------------------------
+
+modified function printNumber
+modified function printString
+modified function printDino
+modified function printScore
+	above functions now take an additional parameter; attribute
+
+removed function clrscene
+
+added RNG features!
+
+added variable word rngTick
+added variable word nextCactus
+
+added function rng
+	takes as input parameters: range (0x640A where 64 (100) is upper bound
+	and 0A (10) is lower bound)
+	uses rngTick to generate a random number between these bounds (inclusive)
+
+added function setRNG
+	sets up initial random value
+
+modified ISR timer
+	timer is not chained to old timer ISR
+	rngTick is now incremented
+	new cactus is printed when tickCount equals nextCactus
+	random value for nextCactus assigned after each cactus is printed
+
+increased jump height to 13
+
+modified printScore function
+	new input parameter: position
+
+added variable string gameOver: 'GAME OVER'
+
+aesthetic changes:
+	'GAME OVER' is printed at game over
+	dino blinks in red color at game over
+	score moved below 'GAME OVER' at game over and blinks green
+
+-----------------------------------------------------------------------------------
+v0.3	10/12/20
+-----------------------------------------------------------------------------------
+
+collision detection added!
+
+modified function shiftSceneRow
+	endFlag is set if '{' character moves into non empty space
+
+modified function printDino
+	added check for printing dino3. if dino3 is being printed
+	into occupied space, then endFlag is set
+	
+	
+
+
+-----------------------------------------------------------------------------------
+v0.2	10/12/20
+-----------------------------------------------------------------------------------
+reorganized functions in asm file
+
+redefined value for dinoPos
+	dinoPos no longer contains byte offset. Instead it contains coords
+	example: 0x1101, where 11 (17) is row number and 01 (1) is col number
+
+added function clrscene
+	clears the scene from row 3 to row 19 inclusive (main animation area)
+	called every tick
+
+added function shiftGround
+	shifts characters in row 20 one position left and wraps around
+	increments score
+	called every tick
+
+increased max jump height from 5 rows to 10 rows
+
+added variable string cactus
+	stores characters to represent cactus
+	'{}'
+
+added function printCactus
+	takes input parameter position
+	starts printing cactus from input position till ground row (row 20)
+
+added variable string clear '      '
+
+added function clrDino
+	removes dino from screen using clear string and printString
+
+modified function jump
+	calls clrDino before any movement is made
+
+added function shiftSceneRow
+	takes input parameter row number
+	shifts entries in the row one column left
+
+added function shiftScene
+	utilizes function shiftSceneRow
+	calls shiftSceneRow for row numbers 3 to 19 inclusive
+
+modified ISR timer
+	printCactus is called every 90 ticks(~5 seconds)
+	shiftScene called	
+
+function clrscene is now obsolete
+-----------------------------------------------------------------------------------
+v0.1	09/12/20
+-----------------------------------------------------------------------------------
+
+started project!
+
+added function clrScreen
+
+added function printNumber
+	takes parameters: number, position to print
+	(example 0x1122 where 11 is row number, 22 is col number)
+
+added function printString
+	takes parameters: string offset, length of string, position to print
+	(example 0x1122 where 11 is row number, 22 is col number)
+
+added variable word score
+	stores player score
+
+added function printScore
+	utilizes function printString to print 'score:'
+	utilizes function printNumber to print score
+
+added function printGround
+
+added variable strings dino1, dino2, dino3
+	stores characters used to make dino
+	'   []='
+	'--/-/-'
+	'  L L'
+
+added variable word dinoPos
+	stores word offset of dino
+
+added function printDino
+	prints dinosaur at dinoPos
+
+hooked INT9 to keyboard
+	reads key
+	Escape key sets endFlag
+	Spacebar sets riseFlag, if fallFlag is not set
+
+added variable word tickcount
+	to be used for function calls at specific times
+
+hooked INT8 to timer
+	timer increments tickCount
+	clears screen
+	checks for jump
+	prints Dino
+	prints Ground
+	prints Score
+	chained to original INT8
+
+added function hookInterrupts
+	hooks INT8 and INT9
+added function unhookInterrupts
+	unhooks INT8 and INT9
+
+added variable riseFlag
+	1 if dino is rising
+
+added rise function
+	utilizes riseFlag
+
+added variable fallFlag
+	1 if dino is falling
+
+added fall function
+	utilizes fallFlag
+
+added jump function
+	utilizes rise and fall function
+	makes dino jump 5 rows (offset 2722 to 1922)
